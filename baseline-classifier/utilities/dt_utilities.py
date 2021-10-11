@@ -190,4 +190,10 @@ if __name__ == "__main__":
     print(consolidated_disaster_tweet_data_df.isnull().sum())
     print()
 
+    # consolidated_disaster_tweet_data_df.to_csv("../data/consolidated_disaster_tweet_data.tsv", sep="\t", index=False)
+    consolidated_disaster_tweet_data_values = consolidated_disaster_tweet_data_df[["tweet_id", "tweet_text"]].values
+    print("consolidated_disaster_tweet_data_values :")
+    print(consolidated_disaster_tweet_data_values)
+
+    print("consolidated_disaster_tweet_data_values[0][0] :", consolidated_disaster_tweet_data_values[0][0])
     # ****************************************************************************************************************
