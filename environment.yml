@@ -13,6 +13,7 @@ dependencies:
   - alabaster=0.7.12=py37_0
   - altair=4.1.0=py_1
   - anyio=2.2.0=py37haa95532_0
+  - appdirs=1.4.4=pyh9f0ad1d_0
   - argh=0.26.2=py37_0
   - argon2-cffi=20.1.0=py37h2bbff1b_1
   - astor=0.8.1=py37haa95532_0
@@ -85,7 +86,6 @@ dependencies:
   - icu=58.2=ha925a31_3
   - idna=2.10=pyhd3eb1b0_0
   - imagesize=1.2.0=pyhd3eb1b0_0
-  - importlib-metadata=3.7.3=py37haa95532_1
   - importlib_metadata=3.7.3=hd3eb1b0_1
   - inflection=0.5.1=py37haa95532_0
   - intel-openmp=2020.2=254
@@ -346,23 +346,14 @@ dependencies:
   - zlib=1.2.11=h62dcd97_4
   - zstd=1.4.5=h04227a9_0
   - pip:
-    - appdirs==1.4.4
     - bokeh==2.3.2
     - distlib==0.3.1
     - distro==1.5.0
     - dynetx==0.2.4
-    - elasticsearch==7.11.0
     - filelock==3.0.12
-    - ndlib==5.1.0
+    - importlib-metadata==1.7.0
     - netdispatch==0.0.7
-    - nx-altair==0.1.6
-    - pipenv==2020.6.2
     - python-igraph==0.9.1
-    - simfin==0.8.1
-    - stargazer==0.0.5
-    - syllapy==0.7.1
-    - ta==0.7.0
-    - ta-lib==0.4.18
     - tabula-py==2.2.0
     - texttable==1.6.3
     - ujson==1.35
