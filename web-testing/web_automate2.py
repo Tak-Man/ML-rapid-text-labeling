@@ -15,19 +15,49 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 import numpy as np
 import pandas as pd
+from sklearn.metrics import accuracy_score
 import re
 import string
 import os
 from time import sleep
 import datetime
 import pickle
+from zipfile import ZipFile
+import sys
+sys.path.insert(1, '../baseline-classifier/utilities')
+import dt_utilities as utils
+
 
 #%%
 #set a timer
 starttime = datetime.datetime.now()
 
+#%%
+# Get the data we'll need for evaluation
+consolidated_disaster_tweet_data_df = \
+    utils.get_consolidated_disaster_tweet_data(root_directory="../baseline-classifier/data/",
+                                               event_type_directory="HumAID_data_event_type",
+                                               events_set_directories=["HumAID_data_events_set1_47K",
+                                                                       "HumAID_data_events_set2_29K"],
+                                               include_meta_data=True)
+
+train_df = consolidated_disaster_tweet_data_df[consolidated_disaster_tweet_data_df["data_type"]=="train"].reset_index(drop=True)
+test_df = consolidated_disaster_tweet_data_df[consolidated_disaster_tweet_data_df["data_type"]=="test"].reset_index(drop=True)
+vectorizer_needs_transform = True
+
+
+#%%
+download_dir = os.path.join(os.getcwd(), "models")
+chrome_options = Options()
+chrome_options.add_experimental_option('prefs',  {
+    "download.default_directory": download_dir,
+    "download.prompt_for_download": False,
+    "download.directory_upgrade": True,
+    }
+)
 
 #%%
 # PARAMETERS
@@ -35,8 +65,9 @@ mpath = os.getcwd() + "\chromedriver.exe"
 wait_time = 0#.75 #0.75
 scroll_wait_seconds = 0#1.75 #1.75
 
+
 #%%
-driver = webdriver.Chrome(mpath)
+driver = webdriver.Chrome(mpath, options = chrome_options)
 
 #%%
 # load the webpage
@@ -142,16 +173,59 @@ def get_overall_quality_score():
     overall_quality_score = driver.find_element_by_xpath('//*[@id="difficultTextSummaryTable"]/tbody/tr[1]/td[2]').text
     return overall_quality_score
 
-def get_tracker_row():
+def export_model():
+    driver.find_element_by_id("exportRecordsButton").click()
+    # Create a ZipFile Object and load sample.zip in it
+    for n in range(5000):
+        try:            
+            with ZipFile('models/rapid-labeling-results.zip', 'r') as zipObj:
+               # Extract all the contents of zip file in current directory
+               zipObj.extractall()
+            break
+        except:
+            sleep(0.01)
+    os.remove("models/rapid-labeling-results.zip")
+    
+#def check_if_vectorizer_needs_transform():
+    
+        
+def get_accuracy_score(vectorizer_needs_transform):
+    # load the model from disk
+    model_filename = os.path.join("output", "trained-classifier.sav")
+    loaded_model = pickle.load(open(model_filename, 'rb'))
+    if vectorizer_needs_transform:
+        #vectorizer_needs_transform = False
+        vectorizer_filename = os.path.join("output", "fitted-vectorizer.sav")
+        #print(vectorizer_filename)
+        vectorizer = pickle.load(open(vectorizer_filename, 'rb'))
+        #X_train = vectorizer.transform(train_df["tweet_text"])
+        X_test = vectorizer.transform(test_df["tweet_text"])
+    y_test = test_df["event_type"]
+    y_pred = [x.lower() for x in loaded_model.predict(X_test)]
+    test_accuracy_score = accuracy_score(y_test, y_pred)
+    #print(test_accuracy_score)
+    
+    return test_accuracy_score, vectorizer_needs_transform
+    
+def get_tracker_row(vectorizer_needs_transform):
     overall_quality_score = get_overall_quality_score()
     _, total_labeled = get_total_unlabeled(get_labeled=True)
     
+    test_accuracy_score = 0.
+    
+    try:
+        export_model()
+        test_accuracy_score, vectorizer_needs_transform = get_accuracy_score(vectorizer_needs_transform)
+    except:
+        pass
+    
     tracker_row = {'labels': total_labeled,
                   'overall_quality_score': overall_quality_score,
-                  'accuracy': 0.,
-                  }
+                  'accuracy': test_accuracy_score,
+                  }    
+    #print(tracker_row)
 
-    return tracker_row
+    return tracker_row, vectorizer_needs_transform
 
 #%%
 # #wrap an action that we can repeat
@@ -215,9 +289,9 @@ phrases = {
     }
 
 
-max_display_options = 4 # range 1 to 6
-txts_per_page = 50
-pages_per_max_display_option = 1071 #20
+max_display_options = 2 # range 1 to 6
+txts_per_page = 5#0
+pages_per_max_display_option = 1#071 #20
 
 label_applied = False
 
@@ -250,7 +324,8 @@ for op in range(max_display_options + 1):
                         label_applied = True
                         if label_applied==True:
                             click_difficult_texts()
-                        tracker_row = get_tracker_row()
+                        tracker_row, vectorizer_needs_transform = get_tracker_row(vectorizer_needs_transform)
+                        print(tracker_row)
                         df_tracker = df_tracker.append(tracker_row, ignore_index=True)
                     except:
                         break
@@ -264,6 +339,42 @@ for op in range(max_display_options + 1):
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime 
 print("Elapsed section time", elapsedsectiontime)
+
+#%%
+
+
+# #%%
+# sectionstarttime = datetime.datetime.now()
+# # Export the Model
+# export_model()
+
+# sectionendtime = datetime.datetime.now()
+# elapsedsectiontime = sectionendtime - sectionstarttime 
+# print("Elapsed section time", elapsedsectiontime)
+
+
+# #%%
+# sectionstarttime = datetime.datetime.now()
+
+# test_accuracy_score, vectorizer_needs_transform = get_accuracy_score(vectorizer_needs_transform)
+# print(test_accuracy_score)
+        
+# sectionendtime = datetime.datetime.now()
+# elapsedsectiontime = sectionendtime - sectionstarttime 
+# print("Elapsed section time", elapsedsectiontime)
+
+#%%
+
+
+
+# #%%
+# print(len(y_test))
+# print(len(y_pred))
+# print(y_test)
+# print(y_pred)
+
+#%%
+# print(test_df.head())
 
 
 #%%
@@ -317,6 +428,8 @@ df_tracker.to_csv("tracker_output.csv")
 print(df_tracker.head(20))
 print(df_tracker.tail(20))
 
+#%%
+driver.close()
 
 #%%
 endtime = datetime.datetime.now()
