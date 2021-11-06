@@ -2,6 +2,7 @@
 __pycache__/
 web-testing/__pycache__/
 baseline-classifier/__pycache__/
+models/empty.txt
 *.py[cod]
 *$py.class
 
