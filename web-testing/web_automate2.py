@@ -289,9 +289,9 @@ phrases = {
     }
 
 
-max_display_options = 2 # range 1 to 6
-txts_per_page = 5#0
-pages_per_max_display_option = 1#071 #20
+max_display_options = 4 # range 1 to 6
+txts_per_page = 50
+pages_per_max_display_option = 1071 #20
 
 label_applied = False
 
@@ -430,6 +430,9 @@ print(df_tracker.tail(20))
 
 #%%
 driver.close()
+
+#%%
+#os.remove("output/fitted-vectorizer.sav")
 
 #%%
 endtime = datetime.datetime.now()
