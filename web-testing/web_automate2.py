@@ -105,7 +105,7 @@ def select_label_one_text(xpath, radio_button_id, wait_time=0.75):
     button_label_single.click()
     sleep(wait_time)
     
-def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=1):
+def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=1, label_type="SimilarTexts"):
     # select a text from the list of all texts
     driver.find_element_by_xpath(xpath).click() 
     sleep(wait_time)
@@ -116,9 +116,13 @@ def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=
     #
     op_xpath = op_base_xpath + str(max_options) + ']'
     driver.find_element_by_xpath(op_xpath).click()
-    driver.find_element_by_id("buttonSimilarTexts1Buttons").click()
     # label multi example
-    button_label_ten = driver.find_element_by_id('group1Button')
+    if label_type=="SimilarTexts":
+        driver.find_element_by_id("buttonSimilarTexts1Buttons").click()
+        button_label_ten = driver.find_element_by_id('group1Button')
+    elif label_type=="RecommendedTexts":
+        driver.find_element_by_id("buttonSimilarTexts2Buttons").click()
+        button_label_ten = driver.find_element_by_id('group2Button')
     sleep(wait_time)
     button_label_ten.click()
     
@@ -227,46 +231,9 @@ def get_tracker_row(vectorizer_needs_transform):
 
     return tracker_row, vectorizer_needs_transform
 
-#%%
-# #wrap an action that we can repeat
-# sectionstarttime = datetime.datetime.now()
 
-# phrases = {
-#     'richter': 0,
-#     'smoke': 1,
-#     'flooding': 2,
-#     'mph': 3,
-#     }
-# reps = 2
-# label_type = 'single'
-
-# search_label(phrases, reps, label_type)
-
-# sectionendtime = datetime.datetime.now()
-# elapsedsectiontime = sectionendtime - sectionstarttime 
-# print("section time", elapsedsectiontime)
-
-#%%
-#phrases = {
-#    'magnitude': 0,
-#    'heat': 1,
-#    'floods': 2,
-#    'cyclone': 3,
-#    }
-
-#search_label(phrases, reps, label_type)
 #%%
 df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy'])
-# sample_row = {'labels': 0,
-#               'overall_quality_score': 0.,
-#               'accuracy': 0.,
-#               }
-# df_tracker = df_tracker.append(sample_row, ignore_index=True)
-# print(df_tracker)
-
-#%%
-#tracker_row = get_tracker_row()
-#print(tracker_row)
 
 #%%
 # read the contents of the text
@@ -288,18 +255,21 @@ phrases = {
     'Dorian': 3,
     }
 
-
-max_display_options = 4 # range 1 to 6
+#
+label_type = "SimilarTexts"
+max_display_options = 5 # range 1 to 6
 txts_per_page = 50
 pages_per_max_display_option = 1071 #20
-
 label_applied = False
 
 for op in range(max_display_options + 1):
     # check how many are unlabelled
     if get_total_unlabeled()==0:
-        break    
-    op_base_xpath = '//*[@id="group1_table_limit"]/option['
+        break   
+    if label_type == "SimilarTexts":
+        op_base_xpath = '//*[@id="group1_table_limit"]/option['
+    elif label_type == "RecommendedTexts":
+        op_base_xpath = '//*[@id="group2_table_limit"]/option['
     for pg in range(pages_per_max_display_option):
         # check how many are unlabelled
         if get_total_unlabeled()==0:
@@ -339,43 +309,6 @@ for op in range(max_display_options + 1):
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime 
 print("Elapsed section time", elapsedsectiontime)
-
-#%%
-
-
-# #%%
-# sectionstarttime = datetime.datetime.now()
-# # Export the Model
-# export_model()
-
-# sectionendtime = datetime.datetime.now()
-# elapsedsectiontime = sectionendtime - sectionstarttime 
-# print("Elapsed section time", elapsedsectiontime)
-
-
-# #%%
-# sectionstarttime = datetime.datetime.now()
-
-# test_accuracy_score, vectorizer_needs_transform = get_accuracy_score(vectorizer_needs_transform)
-# print(test_accuracy_score)
-        
-# sectionendtime = datetime.datetime.now()
-# elapsedsectiontime = sectionendtime - sectionstarttime 
-# print("Elapsed section time", elapsedsectiontime)
-
-#%%
-
-
-
-# #%%
-# print(len(y_test))
-# print(len(y_pred))
-# print(y_test)
-# print(y_pred)
-
-#%%
-# print(test_df.head())
-
 
 #%%
 # # Label difficult texts with single labels
