@@ -45,6 +45,7 @@ consolidated_disaster_tweet_data_df = \
                                                include_meta_data=True)
 
 train_df = consolidated_disaster_tweet_data_df[consolidated_disaster_tweet_data_df["data_type"]=="train"].reset_index(drop=True)
+train_df['tweet_text_lower'] = train_df['tweet_text'].str.lower()
 test_df = consolidated_disaster_tweet_data_df[consolidated_disaster_tweet_data_df["data_type"]=="test"].reset_index(drop=True)
 vectorizer_needs_transform = True
 
@@ -92,10 +93,7 @@ def get_radio_buttons():
     
     return radio_buttons
 
-def select_label_one_text(xpath, radio_button_id, wait_time=0.75):
-    # select a text from the list of all texts
-    driver.find_element_by_xpath(xpath).click() 
-    sleep(wait_time)
+def select_label_one_text(radio_button_id, wait_time=0.75):
     # we select the correct radio button    
     radio_buttons = get_radio_buttons()
     sleep(wait_time)
@@ -213,7 +211,7 @@ def get_accuracy_score(vectorizer_needs_transform):
     
     return test_accuracy_score, vectorizer_needs_transform
     
-def get_tracker_row(vectorizer_needs_transform):
+def get_tracker_row(vectorizer_needs_transform, fully_human_labeled=False):
     overall_quality_score = get_overall_quality_score()
     _, total_labeled = get_total_unlabeled(get_labeled=True)
     
@@ -232,15 +230,124 @@ def get_tracker_row(vectorizer_needs_transform):
     tracker_row = {'labels': total_labeled,
                   'overall_quality_score': overall_quality_score,
                   'accuracy': test_accuracy_score,
-                  'elapsed_time': elapsedtime
+                  'elapsed_time': elapsedtime,
+                  'fully_human_labeled': fully_human_labeled
                   }    
     #print(tracker_row)
 
     return tracker_row, vectorizer_needs_transform
 
+def get_label_id(label):
+    radio_button_id = "other"
+    if label==str.lower("hurricane"):
+        radio_button_id = 0
+    if label==str.lower("fire"):
+        radio_button_id = 1
+    if label==str.lower("flood"):
+        radio_button_id = 2
+    if label==str.lower("earthquake"):
+        radio_button_id = 3
+    return radio_button_id
+
+def get_true_label():
+    #to mimic full single label at a time human labeling
+    tweet_text = driver.find_element_by_xpath('//*[@id="currentTextBody"]/p').text
+    tweet_text = str.lower(tweet_text)
+    #print(tweet_text)
+    true_label = train_df.loc[train_df['tweet_text_lower'].str.contains(tweet_text), "event_type"].values[0]
+    
+    return true_label
+
+def get_true_label_id():
+    true_label = get_true_label()
+    true_label_id = get_label_id(true_label)
+    return true_label_id
+
+
+def process_true_labeling(true_labels, df_tracker, vectorizer_needs_transform):
+    true_label_id = get_true_label_id() # to mimic full single label at a time human labeling
+    #print(true_label_id)
+    select_label_one_text(true_label_id, wait_time=0.)
+    true_labels += 1
+    label_applied = True
+    if label_applied==True:
+        click_difficult_texts()        
+    tracker_row, vectorizer_needs_transform = get_tracker_row(vectorizer_needs_transform, fully_human_labeled=True)
+    print(tracker_row)
+    df_tracker = df_tracker.append(tracker_row, ignore_index=True)
+    
+    return true_labels, df_tracker
+    
 
 #%%
-df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy', 'elapsed_time'])
+# Set up accuracy tracker
+df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy', 'elapsed_time', 'fully_human_labeled'])
+
+# PARAMETERS
+initial_true_label_pages = 3
+initial_true_label_labels_per_page = 40
+true_labeling_cutoff = 37
+
+label_type = "SimilarTexts" # list of valid values ["SimilarTexts", "RecommendedTexts"]
+min_recommender_labels = 25 # 3000
+max_display_options = 4 # 1-10 at a time, 2-20, 3-50, 4-100, 5-1000 after initial slower single and 10 at a time startup labels
+txts_per_page = 15 #50
+pages_per_max_display_option = 4 #1071
+
+difficult_texts_per_page = 0 # need to add functionality for this per page on auto-labeling (& manual labeling per page)
+
+label_applied = False
+
+#%%
+# Label difficult texts with single labels
+# read the contents of the text
+sectionstarttime = datetime.datetime.now()
+
+true_labels = 0
+
+for pg in range(initial_true_label_pages):
+    if get_total_unlabeled()==0:
+        break       
+    # loop through page
+    for rrow in range(1,initial_true_label_labels_per_page+difficult_texts_per_page+1):
+        if get_total_unlabeled()==0:
+            break  
+        if rrow <= initial_true_label_pages:
+            select_tweet_xpath = '//*[@id="allTextsTable"]/tbody/tr[' + str(rrow) + ']/td[1]'
+        else:
+            select_tweet_xpath = '//*[@id="difficultTextsTable"]/tbody/tr[' + str(rrow-initial_true_label_pages) + ']/td[1]'            
+        driver.find_element_by_xpath(select_tweet_xpath).click()
+        # label based on text contents
+        if get_total_unlabeled()==0:
+            break   
+        try:
+            true_labels, df_tracker = process_true_labeling(true_labels, df_tracker, vectorizer_needs_transform)
+        except:
+            print("tweet not found")
+            pass
+                
+        if true_labels >= true_labeling_cutoff:
+            print("reached true labeling cutoff inner")
+            break
+        
+    if true_labels >= true_labeling_cutoff:
+        print("reached true labeling cutoff outer")
+        break
+
+    # go to next page
+    driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()   
+    
+# go to next page
+driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()   
+
+
+sectionendtime = datetime.datetime.now()
+elapsedsectiontime = sectionendtime - sectionstarttime 
+print("Elapsed section time", elapsedsectiontime)
+
+#%%
+auto_start_page = int(driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[3]').text)
+print(auto_start_page)
 
 #%%
 # read the contents of the text
@@ -263,14 +370,8 @@ phrases = {
     }
 
 #
-label_type = "RecommendedTexts" # list of valid values ["SimilarTexts", "RecommendedTexts"]
-min_recommender_labels = 3000
-max_display_options = 2 # range 1 to 6
-txts_per_page = 50
-pages_per_max_display_option = 1071 #20
-label_applied = False
 
-for op in range(max_display_options + 1):
+for op in range(max_display_options, max_display_options + 1):
     # check how many are unlabelled
     if get_total_unlabeled()==0:
         break   
@@ -279,7 +380,7 @@ for op in range(max_display_options + 1):
     elif label_type == "RecommendedTexts":
         op_base_xpath = '//*[@id="group2_table_limit"]/option['
         
-    for pg in range(pages_per_max_display_option):
+    for pg in range(auto_start_page, pages_per_max_display_option + auto_start_page):
         # check how many are unlabelled
         if get_total_unlabeled()==0:
             break        
@@ -314,58 +415,13 @@ for op in range(max_display_options + 1):
         # go to next page
         driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()    
 
-    max_display_options = max_display_options - 1
+    # max_display_options = max_display_options - 1
 
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime 
 print("Elapsed section time", elapsedsectiontime)
 
-#%%
-# # Label difficult texts with single labels
-# # read the contents of the text
-# sectionstarttime = datetime.datetime.now()
-# phrases = {
-#     'earthquake': 0,
-#     'wildfire': 1,
-#     'hurricane': 3,
-#     'flooding': 2,
-#     'fire': 1,
-#     'richter': 0,
-#     'smoke': 1,
-#     'floods': 2,
-#     'mph': 3,
-#     'cyclone': 3,
-#     'heat': 1,
-#     'quake': 0,
-#     }
 
-# for pg in range(20):
-#     if get_total_unlabeled()==0:
-#         break       
-#     # loop through page
-#     for rrow in range(1,51):
-#         if get_total_unlabeled()==0:
-#             break       
-#         xpath_base = '//*[@id="allTextsTable"]/tbody/tr[' + str(rrow) + ']/td['
-#         tweet_text = str.lower(driver.find_element_by_xpath(xpath_base + '2]').text)
-#         #print(tweet_text)
-#         for k, v in phrases.items():
-#             # label based on text contents
-#             if get_total_unlabeled()==0:
-#                 break       
-#             if k in tweet_text:
-#                 try:
-#                     select_label_one_text(xpath_base + '1]/a', v, wait_time=wait_time)
-#                 except:
-#                     break
-#                 break
-    
-#     # go to next page
-#     driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()    
-
-# sectionendtime = datetime.datetime.now()
-# elapsedsectiontime = sectionendtime - sectionstarttime 
-# print("Elapsed section time", elapsedsectiontime)
 #%%
 df_tracker.to_csv("tracker_output.csv")
 print(df_tracker.head(20))

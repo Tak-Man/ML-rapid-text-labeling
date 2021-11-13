@@ -3,6 +3,7 @@ __pycache__/
 web-testing/__pycache__/
 baseline-classifier/__pycache__/
 models/empty.txt
+web-testing/test_data_search_exclude.csv
 *.py[cod]
 *$py.class
 
