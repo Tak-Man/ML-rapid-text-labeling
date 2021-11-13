@@ -105,7 +105,9 @@ def select_label_one_text(xpath, radio_button_id, wait_time=0.75):
     button_label_single.click()
     sleep(wait_time)
     
-def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=1, label_type="SimilarTexts"):
+def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=1, label_type="SimilarTexts",
+                            min_recommender_labels=1000):
+    total_unlabeled, total_labeled = get_total_unlabeled(get_labeled=True)
     # select a text from the list of all texts
     driver.find_element_by_xpath(xpath).click() 
     sleep(wait_time)
@@ -117,7 +119,7 @@ def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=
     op_xpath = op_base_xpath + str(max_options) + ']'
     driver.find_element_by_xpath(op_xpath).click()
     # label multi example
-    if label_type=="SimilarTexts":
+    if (label_type=="SimilarTexts") | (total_labeled < min_recommender_labels) | (total_unlabeled < min_recommender_labels):
         driver.find_element_by_id("buttonSimilarTexts1Buttons").click()
         button_label_ten = driver.find_element_by_id('group1Button')
     elif label_type=="RecommendedTexts":
@@ -151,7 +153,7 @@ def scroll_label_ten(radio_button_id, scroll_wait_seconds = 1.75):
     
 def search_phrase(phrase):
     # Search for a phrase
-    phrase = "richter"
+    #phrase = "richter"
     element = driver.find_element_by_id("searchAllTexts")
     element.send_keys(phrase)
     driver.find_element_by_id("searchAllTextsButton").click()
@@ -223,9 +225,14 @@ def get_tracker_row(vectorizer_needs_transform):
     except:
         pass
     
+    currenttime = datetime.datetime.now()
+    elapsedtime = currenttime - starttime 
+    
+    
     tracker_row = {'labels': total_labeled,
                   'overall_quality_score': overall_quality_score,
                   'accuracy': test_accuracy_score,
+                  'elapsed_time': elapsedtime
                   }    
     #print(tracker_row)
 
@@ -233,7 +240,7 @@ def get_tracker_row(vectorizer_needs_transform):
 
 
 #%%
-df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy'])
+df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy', 'elapsed_time'])
 
 #%%
 # read the contents of the text
@@ -256,8 +263,9 @@ phrases = {
     }
 
 #
-label_type = "SimilarTexts"
-max_display_options = 5 # range 1 to 6
+label_type = "RecommendedTexts" # list of valid values ["SimilarTexts", "RecommendedTexts"]
+min_recommender_labels = 3000
+max_display_options = 2 # range 1 to 6
 txts_per_page = 50
 pages_per_max_display_option = 1071 #20
 label_applied = False
@@ -270,6 +278,7 @@ for op in range(max_display_options + 1):
         op_base_xpath = '//*[@id="group1_table_limit"]/option['
     elif label_type == "RecommendedTexts":
         op_base_xpath = '//*[@id="group2_table_limit"]/option['
+        
     for pg in range(pages_per_max_display_option):
         # check how many are unlabelled
         if get_total_unlabeled()==0:
@@ -290,7 +299,8 @@ for op in range(max_display_options + 1):
                     if get_total_unlabeled()==0:
                         break
                     try:
-                        select_label_multi_text(xpath_base + '1]/a', v, wait_time=wait_time, max_options=max_display_options)
+                        select_label_multi_text(xpath_base + '1]/a', v, wait_time=wait_time, max_options=max_display_options, 
+                                                label_type=label_type, min_recommender_labels=min_recommender_labels)
                         label_applied = True
                         if label_applied==True:
                             click_difficult_texts()
