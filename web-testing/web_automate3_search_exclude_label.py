@@ -206,13 +206,7 @@ def export_model():
             break
         except:
             sleep(0.01)
-        
-    print("export timed out")
 
-    
-#def check_if_vectorizer_needs_transform():
-    
-        
 def get_accuracy_score(vectorizer_needs_transform):
     # load the model from disk
     model_filename = os.path.join("output", "trained-classifier.pkl")
@@ -257,7 +251,6 @@ def get_tracker_row(vectorizer_needs_transform):
                   'accuracy': test_accuracy_score,
                   'elapsed_time': elapsedtime
                   }    
-    #print(tracker_row)
 
     return tracker_row, vectorizer_needs_transform
 
