@@ -2,6 +2,7 @@
 __pycache__/
 web-testing/__pycache__/
 baseline-classifier/__pycache__/
+baseline-classifier/results/
 models/empty.txt
 web-testing/test_data_search_exclude.csv
 web-testing/output/
