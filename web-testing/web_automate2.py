@@ -104,7 +104,7 @@ def select_label_one_text(radio_button_id, wait_time=0.75):
     sleep(wait_time)
     
 def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=1, label_type="SimilarTexts",
-                            min_recommender_labels=1000, click_needed=True):
+                            min_recommender_labels=1000, click_needed=True, true_labeling_cutoff=0, true_labeling_cutoff_end=0):
     total_unlabeled, total_labeled = get_total_unlabeled(get_labeled=True)
     if click_needed:
         # select a text from the list of all texts
@@ -119,7 +119,9 @@ def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=
     op_xpath = op_base_xpath + str(max_options) + ']'
     driver.find_element_by_xpath(op_xpath).click()
     # label multi example
-    if (label_type=="SimilarTexts") | (total_labeled < min_recommender_labels) | (total_unlabeled < min_recommender_labels):
+    if (total_labeled < true_labeling_cutoff) | (total_unlabeled < true_labeling_cutoff_end):
+        button_label_ten = driver.find_element_by_id('labelButtonSingle')
+    elif (label_type=="SimilarTexts") | (total_labeled < min_recommender_labels) | (total_unlabeled < min_recommender_labels):
         driver.find_element_by_id("buttonSimilarTexts1Buttons").click()
         button_label_ten = driver.find_element_by_id('group1Button')
     elif label_type=="RecommendedTexts":
@@ -251,24 +253,27 @@ def get_label_id(label):
         radio_button_id = 3
     return radio_button_id
 
-def get_true_label():
+def get_true_label(tweet_id=-1):
     #to mimic full single label at a time human labeling
-    tweet_text = driver.find_element_by_xpath('//*[@id="currentTextBody"]/p').text
-    tweet_text = str.lower(tweet_text)
-    #print(tweet_text)
-    true_label = train_df.loc[train_df['tweet_text_lower'].str.contains(tweet_text), "event_type"].values[0]
+    tweet_id = int(tweet_id)
+    if tweet_id==-1:
+        tweet_text = driver.find_element_by_xpath('//*[@id="currentTextBody"]/p').text
+        tweet_text = str.lower(tweet_text)
+        true_label = train_df.loc[train_df['tweet_text_lower'].str.contains(tweet_text), "event_type"].values[0]
+    else:
+        true_label = train_df.loc[train_df['tweet_id']==tweet_id, "event_type"].values[0]
     #print(true_label, tweet_text)
     
     return true_label
 
-def get_true_label_id():
-    true_label = get_true_label()
+def get_true_label_id(tweet_id=-1):
+    true_label = get_true_label(tweet_id=tweet_id)
     true_label_id = get_label_id(true_label)
     return true_label_id
 
 
-def process_true_labeling(true_labels, df_tracker, vectorizer_needs_transform):
-    true_label_id = get_true_label_id() # to mimic full single label at a time human labeling
+def process_true_labeling(true_labels, df_tracker, vectorizer_needs_transform, tweet_id=-1):
+    true_label_id = get_true_label_id(tweet_id=tweet_id) # to mimic full single label at a time human labeling
     #print(true_label_id)
     select_label_one_text(true_label_id, wait_time=0.)
     true_labels += 1
@@ -298,13 +303,14 @@ def get_select_tweet_xpath(rrow_, txts_per_page_):
 df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy', 'elapsed_time', 'fully_human_labeled'])
 
 # PARAMETERS
-initial_true_label_pages = 100
+initial_true_label_pages = 1000
 initial_true_label_labels_per_page = 50
-true_labeling_cutoff = 1000
+true_labeling_cutoff = 5000
+true_labeling_cutoff_end = 2000
 
 label_type = "RecommendedTexts" # list of valid values ["SimilarTexts", "RecommendedTexts"] 
-min_recommender_labels = 3000 # 3000
-max_display_options = 2 # 1-10 at a time, 2-20, 3-50, 4-100, 5-1000 after initial slower single and 10 at a time startup labels
+min_recommender_labels = 1000 # 3000
+max_display_options = 1 # 1-10 at a time, 2-20, 3-50, 4-100, 5-1000 after initial slower single and 10 at a time startup labels
 txts_per_page = 50 #50
 pages_per_max_display_option = 1071 #1071 #1071
 
@@ -327,12 +333,14 @@ if true_labeling_cutoff>0:
             if get_total_unlabeled()==0:
                 break  
             select_tweet_xpath = get_select_tweet_xpath(rrow, txts_per_page)
-            driver.find_element_by_xpath(select_tweet_xpath).click()
+            tweet_selected = driver.find_element_by_xpath(select_tweet_xpath)
+            tweet_id = tweet_selected.text
+            tweet_selected.click()
             # label based on text contents
             if get_total_unlabeled()==0:
                 break   
             try:
-                true_labels, df_tracker = process_true_labeling(true_labels, df_tracker, vectorizer_needs_transform)
+                true_labels, df_tracker = process_true_labeling(true_labels, df_tracker, vectorizer_needs_transform, tweet_id=tweet_id)
             except:
                 print("tweet not found")
                 pass
@@ -385,15 +393,19 @@ for op in range(max_display_options, max_display_options + 1):
             if get_total_unlabeled()==0:
                 break
             select_tweet_xpath = get_select_tweet_xpath(rrow, txts_per_page)
-            driver.find_element_by_xpath(select_tweet_xpath).click()
+            tweet_selected = driver.find_element_by_xpath(select_tweet_xpath)
+            tweet_id = tweet_selected.text
+            print(tweet_id)
+            tweet_selected.click()
             # label based on text contents
             if get_total_unlabeled()==0:
                 break   
             try:
-                true_label_id = get_true_label_id()
+                true_label_id = get_true_label_id(tweet_id=tweet_id)
                 #print(true_label_id)
                 select_label_multi_text(select_tweet_xpath + '/a', true_label_id, wait_time=wait_time, max_options=max_display_options, 
-                                        label_type=label_type, min_recommender_labels=min_recommender_labels, click_needed=False)
+                                        label_type=label_type, min_recommender_labels=min_recommender_labels, click_needed=False,
+                                        true_labeling_cutoff=true_labeling_cutoff, true_labeling_cutoff_end=true_labeling_cutoff_end)
                 label_applied = True
                 if label_applied==True:
                     click_difficult_texts()
