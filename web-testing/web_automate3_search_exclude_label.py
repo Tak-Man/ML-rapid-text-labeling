@@ -22,6 +22,7 @@ from sklearn.metrics import accuracy_score
 import re
 import string
 import os
+import glob, os.path
 from time import sleep
 import datetime
 import pickle
@@ -35,6 +36,9 @@ import math
 #%%
 #set a timer
 starttime = datetime.datetime.now()
+
+#%%
+
 
 #%%
 # Get the data we'll need for evaluation
@@ -117,8 +121,6 @@ def select_label_multi_text(xpath, radio_button_id, wait_time=0.75, max_options=
     sleep(wait_time)
     radio_buttons[radio_button_id].click() 
     #
-    op_xpath = op_base_xpath + str(max_options) + ']'
-    driver.find_element_by_xpath(op_xpath).click()
     # label multi example
     if (label_type=="SimilarTexts") | (total_labeled < min_recommender_labels) | (total_unlabeled < min_recommender_labels):
         driver.find_element_by_id("buttonSimilarTexts1Buttons").click()
@@ -180,29 +182,44 @@ def get_overall_quality_score():
     overall_quality_score = driver.find_element_by_xpath('//*[@id="difficultTextSummaryTable"]/tbody/tr[1]/td[2]').text
     return overall_quality_score
 
+def clear_model_output():
+    filelist = glob.glob(os.path.join("models", "*.zip"))
+    for f in filelist:
+        os.remove(f)
+
+def clear_output():
+    filelist = glob.glob(os.path.join("output", "*.*"))
+    for f in filelist:
+        os.remove(f)
+
 def export_model():
     driver.find_element_by_id("exportRecordsButton").click()
     # Create a ZipFile Object and load sample.zip in it
-    for n in range(5000):
+    for n in range(10000):
         try:            
-            with ZipFile('models/rapid-labeling-results.zip', 'r') as zipObj:
+            results_zip = glob.glob(os.path.join("models", "*.zip"))
+            mresults = results_zip[0]
+            #print(mresults)
+            with ZipFile(mresults, 'r') as zipObj:
                # Extract all the contents of zip file in current directory
                zipObj.extractall()
             break
         except:
             sleep(0.01)
-    os.remove("models/rapid-labeling-results.zip")
+        
+    print("export timed out")
+
     
 #def check_if_vectorizer_needs_transform():
     
         
 def get_accuracy_score(vectorizer_needs_transform):
     # load the model from disk
-    model_filename = os.path.join("output", "trained-classifier.sav")
+    model_filename = os.path.join("output", "trained-classifier.pkl")
     loaded_model = pickle.load(open(model_filename, 'rb'))
     if vectorizer_needs_transform:
         #vectorizer_needs_transform = False
-        vectorizer_filename = os.path.join("output", "fitted-vectorizer.sav")
+        vectorizer_filename = os.path.join("output", "fitted-vectorizer.pkl")
         #print(vectorizer_filename)
         vectorizer = pickle.load(open(vectorizer_filename, 'rb'))
         #X_train = vectorizer.transform(train_df["tweet_text"])
@@ -224,6 +241,8 @@ def get_tracker_row(vectorizer_needs_transform):
     test_accuracy_score = 0.
     
     try:
+        clear_model_output()
+        clear_output()
         export_model()
         test_accuracy_score, vectorizer_needs_transform = get_accuracy_score(vectorizer_needs_transform)
     except:
@@ -244,13 +263,13 @@ def get_tracker_row(vectorizer_needs_transform):
 
 def get_label_id(label):
     radio_button_id = "other"
-    if label==str.lower("hurricane"):
+    if label==str.lower("earthquake"):
         radio_button_id = 0
     if label==str.lower("fire"):
         radio_button_id = 1
     if label==str.lower("flood"):
         radio_button_id = 2
-    if label==str.lower("earthquake"):
+    if label==str.lower("hurricane"):
         radio_button_id = 3
     return radio_button_id
 
@@ -309,6 +328,8 @@ label_type = "AllTexts_search_exclude" # list of valid values ["SimilarTexts", "
 
 #print(len(df_test_data))
 df_test_data = pd.read_csv("test_data_search_exclude.csv")
+clear_model_output()
+clear_output()
 df_tracker = search_exclude_labeling(df_test_data, vectorizer_needs_transform)
 
 sectionendtime = datetime.datetime.now()
@@ -328,9 +349,6 @@ print(df_tracker.tail(20))
 
 #%%
 #driver.close()
-
-#%%
-#os.remove("output/fitted-vectorizer.sav")
 
 #%%
 endtime = datetime.datetime.now()
