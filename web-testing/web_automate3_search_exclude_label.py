@@ -11,28 +11,15 @@ Created on Sat Oct 23 08:58:37 2021
 
 #%%
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score
-import re
-import string
-import os
 import glob, os.path
-from time import sleep
 import datetime
-import pickle
-from zipfile import ZipFile
 import sys
 sys.path.insert(1, '../baseline-classifier/utilities')
 import dt_utilities as utils
-import math
-from utilities import search_exclude_labeling, get_radio_buttons, select_label_one_text, select_label_multi_text, click_difficult_texts, scroll_label_ten, get_total_unlabeled, get_overall_quality_score
-from utilities import export_model, get_accuracy_score, clear_model_output, clear_output, get_tracker_row, get_label_id, get_true_label, get_true_label_id, process_true_labeling, get_select_tweet_xpath
+from utilities import search_exclude_labeling
+from utilities import label_all, clear_model_output, clear_output
 
 #%%
 #set a timer
@@ -85,30 +72,20 @@ driver.find_element_by_id('config1').click()
 driver.find_element_by_id('loadDataSetButton').click()
 
 #%%
-# identify radio buttons
-
-
-#%%
-# read the contents of the text
 sectionstarttime = datetime.datetime.now()
-#
-label_type = "AllTexts_search_exclude" # list of valid values ["SimilarTexts", "RecommendedTexts"]
+label_type = "AllTexts_search_exclude" # list of valid values ["SimilarTexts", "RecommendedTexts, AllTexts_search_exclude"]
 
-#print(len(df_test_data))
-df_test_data = pd.read_csv("test_data_search_exclude.csv")
+df_test_data = pd.read_csv("test_data_search_exclude_very_short.csv")
 clear_model_output()
 clear_output()
 df_tracker = search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer_needs_transform)
 
+# finish by labeling all remaining unlabeled examples
+df_tracker = label_all(driver, test_df, starttime, df_tracker, vectorizer_needs_transform)
+
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime 
 print("Elapsed section time", elapsedsectiontime)
-
-#%%
-
-#df_test_data = pd.read_csv("test_data_search_exclude2.csv")
-#df_tracker = search_exclude_labeling(driver, df_test_data, vectorizer_needs_transform)
-
 
 #%%
 df_tracker.to_csv("tracker_output.csv")

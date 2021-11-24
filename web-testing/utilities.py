@@ -268,3 +268,11 @@ def search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer
         print(tracker_row)
 
     return df_tracker
+
+def label_all(driver, test_df, starttime, df, vnt):
+    driver.find_element_by_id('labelAllButton').click()
+    tracker_row, vnt = get_tracker_row(driver, test_df, starttime, vnt,
+                                                              fully_human_labeled=False)
+    df = df.append(tracker_row, ignore_index=True)
+
+    return df
