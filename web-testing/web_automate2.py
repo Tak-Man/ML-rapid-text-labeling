@@ -91,7 +91,7 @@ df_tracker = pd.DataFrame(
 # PARAMETERS
 initial_true_label_pages = 1000
 initial_true_label_labels_per_page = 50
-true_labeling_cutoff = 4000 # 5000
+true_labeling_cutoff = 4 #000 # 5000
 true_labeling_cutoff_end = 0 # 2000
 
 label_type = "RecommendedTexts"  # list of valid values ["SimilarTexts", "RecommendedTexts"]
@@ -127,12 +127,12 @@ if true_labeling_cutoff > 0:
             # label based on text contents
             if get_total_unlabeled(driver) == 0:
                 break
-            #try:
-            true_labels, df_tracker = process_true_labeling(driver, train_df, test_df, true_labels, starttime, df_tracker, vectorizer_needs_transform,
+            try:
+                true_labels, df_tracker = process_true_labeling(driver, train_df, test_df, true_labels, starttime, df_tracker, vectorizer_needs_transform,
                                                                 tweet_id=tweet_id)
-            #except:
-            #print("tweet not found single")
-            #    pass
+            except:
+                print("tweet not found single")
+                pass
 
             if true_labels >= true_labeling_cutoff:
                 print("reached true labeling cutoff inner")
@@ -187,9 +187,9 @@ for op in range(len(display_options_list)):
             if get_total_unlabeled(driver) == 0:
                 break
             try:
-                true_label_id = get_true_label_id(tweet_id=tweet_id)
+                true_label_id = get_true_label_id(driver, train_df, tweet_id=tweet_id)
                 # print(true_label_id)
-                select_label_multi_text(select_tweet_xpath + '/a', true_label_id, wait_time=wait_time,
+                select_label_multi_text(driver, select_tweet_xpath + '/a', op_base_xpath, true_label_id, wait_time=wait_time,
                                         max_options=op+1,
                                         label_type=label_type, min_recommender_labels=min_recommender_labels,
                                         click_needed=False,
@@ -197,8 +197,8 @@ for op in range(len(display_options_list)):
                                         true_labeling_cutoff_end=true_labeling_cutoff_end)
                 label_applied = True
                 if label_applied == True:
-                    click_difficult_texts()
-                tracker_row, vectorizer_needs_transform = get_tracker_row(vectorizer_needs_transform)
+                    click_difficult_texts(driver)
+                tracker_row, vectorizer_needs_transform = get_tracker_row(driver, test_df, starttime, vectorizer_needs_transform)
                 print(tracker_row)
                 df_tracker = df_tracker.append(tracker_row, ignore_index=True)
             except:
@@ -207,6 +207,7 @@ for op in range(len(display_options_list)):
 
                 # go to next page
         driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()
+        df_tracker.to_csv("tracker_output.csv")
 
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime

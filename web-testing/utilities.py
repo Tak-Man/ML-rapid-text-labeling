@@ -37,13 +37,13 @@ def select_label_one_text(driver, radio_button_id, wait_time=0.75):
 def select_label_multi_text(driver, xpath, op_base_xpath, radio_button_id, wait_time=0.75, max_options=1, label_type="SimilarTexts",
                             min_recommender_labels=1000, click_needed=True, true_labeling_cutoff=0,
                             true_labeling_cutoff_end=0):
-    total_unlabeled, total_labeled = get_total_unlabeled(get_labeled=True)
+    total_unlabeled, total_labeled = get_total_unlabeled(driver, get_labeled=True)
     if click_needed:
         # select a text from the list of all texts
         driver.find_element_by_xpath(xpath).click()
         sleep(wait_time)
     # we select the correct radio button
-    radio_buttons = get_radio_buttons()
+    radio_buttons = get_radio_buttons(driver)
     sleep(wait_time)
     # print(radio_button_id)
     radio_buttons[radio_button_id].click()
