@@ -222,3 +222,49 @@ def get_select_tweet_xpath(rrow_, txts_per_page_):
         select_tweet_xpath = '//*[@id="difficultTextsTable"]/tbody/tr[' + str(rrow_ - txts_per_page_) + ']/td[1]'
 
     return select_tweet_xpath
+
+
+def search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer_needs_transform, wait_time=0.75):
+    df_tracker = pd.DataFrame(columns=['labels', 'overall_quality_score', 'accuracy', 'elapsed_time'])
+    print(len(df_test_data))
+
+    for rrow in range(len(df_test_data)):
+        row_include = df_test_data.loc[df_test_data.index == rrow, "include"].values[0]
+        row_exclude = df_test_data.loc[df_test_data.index == rrow, "exclude"].values[0]
+        # print(row_exclude)
+
+        supplied_label = df_test_data.loc[df_test_data.index == rrow, "label"].values[0]
+        radio_button_id = get_label_id(supplied_label)
+        # print(supplied_label, radio_button_id)
+
+        # print("send include", rrow)
+        element_include = driver.find_element_by_id('searchAllTextsInclude')
+        element_include.send_keys(row_include)
+
+        # print("send exclude", rrow)
+        if type(row_exclude) == str:
+            element_exclude = driver.find_element_by_id('searchAllTextsExclude')
+            element_exclude.send_keys(row_exclude)
+
+        # print("run query", rrow)
+        driver.find_element_by_id('searchAllTextsButton').click()
+        sleep(wait_time)
+
+        # print("select label option", radio_button_id)
+        radio_buttons = get_radio_buttons(driver)
+        radio_buttons[radio_button_id].click()
+        sleep(wait_time)
+
+        # print("apply label", rrow)
+        driver.find_element_by_id('labelSearchTextsButton').click()
+        sleep(wait_time)
+
+        # print("update difficult texts / results", rrow)
+        click_difficult_texts(driver)
+        sleep(wait_time)
+
+        tracker_row, vectorizer_needs_transform = get_tracker_row(driver, test_df, starttime, vectorizer_needs_transform, fully_human_labeled=False)
+        df_tracker = df_tracker.append(tracker_row, ignore_index=True)
+        print(tracker_row)
+
+    return df_tracker

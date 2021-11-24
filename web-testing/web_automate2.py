@@ -70,18 +70,12 @@ driver = webdriver.Chrome(mpath, options=chrome_options)
 # load the webpage
 driver.get("http://127.0.0.1:5000/")
 driver.maximize_window()
-# sleep(2) #for demo
 
 # %%
 # navigate landing page
 driver.find_element_by_xpath('//*[@id="bodyLeftTable1"]/tbody/tr[1]/td[1]/a').click()
 driver.find_element_by_id('config1').click()
 driver.find_element_by_id('loadDataSetButton').click()
-
-
-# %%
-# identify radio buttons
-
 
 # %%
 # Set up accuracy tracker
@@ -97,10 +91,10 @@ true_labeling_cutoff_end = 0 # 2000
 label_type = "RecommendedTexts"  # list of valid values ["SimilarTexts", "RecommendedTexts"]
 min_recommender_labels = 3000 #1000  # 3000
 display_options_list = [2, 5, 10, 20, 50, 100]
-max_display_options = 0
+max_display_options = 4
 display_option_upper_limit = 6
 txts_per_page = 50  # 50
-pages_per_max_display_option = 80 #071  # 1071 #1071
+pages_per_max_display_option = 8 #071  # 1071 #1071
 
 difficult_texts_per_page = 10  # need to add functionality for this per page on auto-labeling (& manual labeling per page)
 
