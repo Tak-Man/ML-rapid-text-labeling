@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"usermeta": {"embedOptions": {"theme": "fivethirtyeight"}}, "config": {"view": {"continuousWidth": 400, "continuousHeight": 300}, "title": {"anchor": "start", "color": "gray", "fontSize": 20}}, "vconcat": [{"hconcat": [{"hconcat": [{"data": {"name": "data-d751713988987e9331980363e24189ce"}, "mark": "circle", "encoding": {"color": {"type": "nominal", "field": "semi_supervised", "title": "Semi Supervised"}, "tooltip": [{"type": "nominal", "field": "model_type"}, {"type": "nominal", "field": "samples", "format": ",.0f"}, {"type": "quantitative", "field": "test_accuracy", "format": ",.4f"}, {"type": "nominal", "field": "semi_supervised"}, {"type": "quantitative", "field": "run_time", "format": ",.4f"}], "x": {"type": "quantitative", "axis": {"grid": false, "title": "Run Time in Seconds", "titleFontSize": 14}, "field": "run_time", "scale": {"domain": [0.0, 250]}}, "y": {"type": "quantitative", "axis": {"grid": false, "title": "Accuracy on Test Set", "titleFontSize": 14}, "field": "test_accuracy", "scale": {"domain": [0.65, 1.0]}}}, "height": 200, "title": "100", "width": 240}, {"data": {"name": "data-d751713988987e9331980363e24189ce"}, "mark": "circle", "encoding": {"color": {"type": "nominal", "field": "semi_supervised", "title": "Semi Supervised"}, "tooltip": [{"type": "nominal", "field": "model_type"}, {"type": "nominal", "field": "samples", "format": ",.0f"}, {"type": "quantitative", "field": "test_accuracy", "format": ",.4f"}, {"type": "nominal", "field": "semi_supervised"}, {"type": "quantitative", "field": "run_time", "format": ",.4f"}], "x": {"type": "quantitative", "axis": {"grid": false, "title": "Run Time in Seconds", "titleFontSize": 14}, "field": "run_time", "scale": {"domain": [0.0, 250]}}, "y": {"type": "quantitative", "axis": {"grid": false, "title": "Accuracy on Test Set", "titleFontSize": 14}, "field": "test_accuracy", "scale": {"domain": [0.65, 1.0]}}}, "height": 200, "title": "200", "width": 240}, {"data": {"name": "data-d751713988987e9331980363e24189ce"}, "mark": "circle", "encoding": {"color": {"type": "nominal", "field": "semi_supervised", "title": "Semi Supervised"}, "tooltip": [{"type": "nominal", "field": "model_type"}, {"type": "nominal", "field": "samples", "format": ",.0f"}, {"type": "quantitative", "field": "test_accuracy", "format": ",.4f"}, {"type": "nominal", "field": "semi_supervised"}, {"type": "quantitative", "field": "run_time", "format": ",.4f"}], "x": {"type": "quantitative", "axis": {"grid": false, "title": "Run Time in Seconds", "titleFontSize": 14}, "field": "run_time", "scale": {"domain": [0.0, 250]}}, "y": {"type": "quantitative", "axis": {"grid": false, "title": "Accuracy on Test Set", "titleFontSize": 14}, "field": "test_accuracy", "scale": {"domain": [0.65, 1.0]}}}, "height": 200, "title": "300", "width": 240}]}]}, {"hconcat": [{"hconcat": [{"data": {"name": "data-d751713988987e9331980363e24189ce"}, "mark": "circle", "encoding": {"color": {"type": "nominal", "field": "semi_supervised", "title": "Semi Supervised"}, "tooltip": [{"type": "nominal", "field": "model_type"}, {"type": "nominal", "field": "samples", "format": ",.0f"}, {"type": "quantitative", "field": "test_accuracy", "format": ",.4f"}, {"type": "nominal", "field": "semi_supervised"}, {"type": "quantitative", "field": "run_time", "format": ",.4f"}], "x": {"type": "quantitative", "axis": {"grid": false, "title": "Run Time in Seconds", "titleFontSize": 14}, "field": "run_time", "scale": {"domain": [0.0, 250]}}, "y": {"type": "quantitative", "axis": {"grid": false, "title": "Accuracy on Test Set", "titleFontSize": 14}, "field": "test_accuracy", "scale": {"domain": [0.65, 1.0]}}}, "height": 200, "title": "500", "width": 240}, {"data": {"name": "data-d751713988987e9331980363e24189ce"}, "mark": "circle", "encoding": {"color": {"type": "nominal", "field": "semi_supervised", "title": "Semi Supervised"}, "tooltip": [{"type": "nominal", "field": "model_type"}, {"type": "nominal", "field": "samples", "format": ",.0f"}, {"type": "quantitative", "field": "test_accuracy", "format": ",.4f"}, {"type": "nominal", "field": "semi_supervised"}, {"type": "quantitative", "field": "run_time", "format": ",.4f"}], "x": {"type": "quantitative", "axis": {"grid": false, "title": "Run Time in Seconds", "titleFontSize": 14}, "field": "run_time", "scale": {"domain": [0.0, 250]}}, "y": {"type": "quantitative", "axis": {"grid": false, "title": "Accuracy on Test Set", "titleFontSize": 14}, "field": "test_accuracy", "scale": {"domain": [0.65, 1.0]}}}, "height": 200, "title": "800", "width": 240}, {"data": {"name": "data-d751713988987e9331980363e24189ce"}, "mark": "circle", "encoding": {"color": {"type": "nominal", "field": "semi_supervised", "title": "Semi Supervised"}, "tooltip": [{"type": "nominal", "field": "model_type"}, {"type": "nominal", "field": "samples", "format": ",.0f"}, {"type": "quantitative", "field": "test_accuracy", "format": ",.4f"}, {"type": "nominal", "field": "semi_supervised"}, {"type": "quantitative", "field": "run_time", "format": ",.4f"}], "x": {"type": "quantitative", "axis": {"grid": false, "title": "Run Time in Seconds", "titleFontSize": 14}, "field": "run_time", "scale": {"domain": [0.0, 250]}}, "y": {"type": "quantitative", "axis": {"grid": false, "title": "Accuracy on Test Set", "titleFontSize": 14}, "field": "test_accuracy", "scale": {"domain": [0.65, 1.0]}}}, "height": 200, "title": "None", "width": 240}]}]}], "title": "Baseline Accuracy to Speed with True Labels", "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-d751713988987e9331980363e24189ce": []}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
