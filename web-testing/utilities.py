@@ -1,5 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 import pandas as pd
 from sklearn.metrics import accuracy_score
 import os
@@ -11,7 +9,6 @@ from zipfile import ZipFile
 import sys
 
 sys.path.insert(1, '../baseline-classifier/utilities')
-import dt_utilities as utils
 
 def get_radio_buttons(driver):
     radio_buttons = []
@@ -61,6 +58,8 @@ def select_label_multi_text(driver, xpath, op_base_xpath, radio_button_id, wait_
     elif label_type == "RecommendedTexts":
         driver.find_element_by_id("buttonSimilarTexts2Buttons").click()
         button_label_ten = driver.find_element_by_id('group2Button')
+    else:
+        button_label_ten = driver.find_element_by_id('labelButtonSingle')
     sleep(wait_time)
     button_label_ten.click()
 
@@ -77,7 +76,7 @@ def scroll_label_ten(driver, radio_button_id, scroll_wait_seconds=1.75):
         link_scroll = driver.find_element_by_xpath(scr_xpath)
         driver.execute_script("return arguments[0].scrollIntoView(true);", link_scroll)
         sleep(scroll_wait_seconds)
-    radio_buttons = get_radio_buttons()
+    radio_buttons = get_radio_buttons(driver)
     radio_buttons[radio_button_id].click()
     sleep(scroll_wait_seconds)
 
@@ -122,10 +121,9 @@ def get_accuracy_score(test_df, vectorizer_needs_transform):
     # load the model from disk
     model_filename = os.path.join("output", "trained-classifier.pkl")
     loaded_model = pickle.load(open(model_filename, 'rb'))
-    if vectorizer_needs_transform:
-        vectorizer_filename = os.path.join("output", "fitted-vectorizer.pkl")
-        vectorizer = pickle.load(open(vectorizer_filename, 'rb'))
-        X_test = vectorizer.transform(test_df["tweet_text"])
+    vectorizer_filename = os.path.join("output", "fitted-vectorizer.pkl")
+    vectorizer = pickle.load(open(vectorizer_filename, 'rb'))
+    X_test = vectorizer.transform(test_df["tweet_text"])
     y_test = test_df["event_type"]
     y_pred = [x.lower() for x in loaded_model.predict(X_test)]
     test_accuracy_score = accuracy_score(y_test, y_pred)
@@ -269,8 +267,11 @@ def search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer
 
     return df_tracker
 
-def label_all(driver, test_df, starttime, df, vnt):
-    driver.find_element_by_id('labelAllButton').click()
+def label_all(driver, test_df, starttime, df, vnt, wait_time=2.5):
+    for mm in range(3):
+        driver.find_element_by_id('labelAllButton').click()
+        sleep(wait_time)
+
     tracker_row, vnt = get_tracker_row(driver, test_df, starttime, vnt,
                                                               fully_human_labeled=False)
     df = df.append(tracker_row, ignore_index=True)

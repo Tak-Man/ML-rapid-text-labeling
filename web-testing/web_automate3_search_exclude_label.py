@@ -13,8 +13,9 @@ Created on Sat Oct 23 08:58:37 2021
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
-import glob, os.path
+import os.path
 import datetime
+from time import sleep
 import sys
 sys.path.insert(1, '../baseline-classifier/utilities')
 import dt_utilities as utils
@@ -75,7 +76,7 @@ driver.find_element_by_id('loadDataSetButton').click()
 sectionstarttime = datetime.datetime.now()
 label_type = "AllTexts_search_exclude" # list of valid values ["SimilarTexts", "RecommendedTexts, AllTexts_search_exclude"]
 
-df_test_data = pd.read_csv("test_data_search_exclude_very_short.csv")
+df_test_data = pd.read_csv("test_data_search_exclude_short.csv")
 clear_model_output()
 clear_output()
 df_tracker = search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer_needs_transform)
@@ -93,7 +94,7 @@ print(df_tracker.head(20))
 print(df_tracker.tail(20))
 
 #%%
-#driver.close()
+driver.close()
 
 #%%
 endtime = datetime.datetime.now()
