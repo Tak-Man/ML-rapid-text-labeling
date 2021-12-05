@@ -80,19 +80,19 @@ df_tracker = pd.DataFrame(
 # PARAMETERS
 initial_true_label_pages = 1000
 initial_true_label_labels_per_page = 50
-true_labeling_cutoff = 1000 # 5000
+true_labeling_cutoff = 1200 # 5000
 true_labeling_cutoff_end = 0 # 2000
 
 label_type = "RecommendedTexts"  # list of valid values ["SimilarTexts", "RecommendedTexts"]
 min_recommender_labels = 1000 #1000  # 3000
-final_label_all = 5000
+final_label_all = 52400
 display_options_list = [2, 5, 10, 20, 50, 100]
 display_option_lower_limit = 3
 display_option_upper_limit = 6
 txts_per_page = 50  # 50
 pages_per_max_display_option = 5  # 1071 #1071
 
-difficult_texts_per_page = 15  # need to add functionality for this per page on auto-labeling (& manual labeling per page)
+difficult_texts_per_page = 0  # need to add functionality for this per page on auto-labeling (& manual labeling per page)
 
 label_applied = False
 
