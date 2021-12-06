@@ -80,7 +80,7 @@ df_tracker = pd.DataFrame(
 # PARAMETERS
 initial_true_label_pages = 1000
 initial_true_label_labels_per_page = 50
-true_labeling_cutoff = 1200 # 5000
+true_labeling_cutoff = 3000 # 5000
 true_labeling_cutoff_end = 0 # 2000
 
 label_type = "RecommendedTexts"  # list of valid values ["SimilarTexts", "RecommendedTexts"]

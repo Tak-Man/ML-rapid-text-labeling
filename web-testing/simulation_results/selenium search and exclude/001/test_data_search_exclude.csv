@@ -1,0 +1,105 @@
+include,exclude,label
+CA,,fire
+FL,,hurricane
+fire.,,fire
+fire!,,fire
+hurricane.,,hurricane
+hurricane!,,hurricane
+flood.,,flood
+flood!,,flood
+floods!,,flood
+floods.,,flood
+earthquake.,,earthquake
+earthquake!,,earthquake
+quake,,earthquake
+quake.,,earthquake
+quake!,,earthquake
+federal,,fire
+california,,fire
+floridians,,hurricane
+evacuations,,hurricane
+Italian,,earthquake
+Telugu,,flood
+Florence,,hurricane
+disaster assistance,,earthquake
+Ecuador,,hurricane
+Delhi,,flood
+Americans,,flood
+eqnz,,earthquake
+Texans,,hurricane
+evacuations,,hurricane
+evacuate,,hurricane
+Bahama,,hurricane
+Anguilla,,hurricane
+Barbados,,hurricane
+Dominica,,hurricane
+Pakistan,,flood
+Bangladesh,,flood
+Mexico,,hurricane
+heavy rain,,flood
+100F,,fire
+#Cajun,,hurricane
+Maria,,hurricane
+Texas,,hurricane
+Miami,,hurricane
+Houston,,hurricane
+Caribbean,,hurricane
+Italy,,earthquake
+Rico,,hurricane
+Matthew,,hurricane
+Haiti,,hurricane
+storm,,hurricane
+PR,,hurricane
+Andrew,,hurricane
+Puerto Rico,,hurricane
+Andrew,,hurricane
+Varakashi,,hurricane
+San Juan,,hurricane
+idai,,hurricane
+Malawi,,flood
+Mozambique,,flood
+Zimbabwe,,flood
+#MalawiFloods2019,,flood
+Fort McMurray,,fire
+Dorian,,hurricane
+mph,,hurricane
+#Harvey,,hurricane
+Irma,,hurricane
+Harvey,,hurricane
+#Florence,,hurricane
+Florida,,hurricane
+Nebraska,,flood
+tsunami,,earthquake
+#eqnz,,earthquake
+#PuertoRico,,hurricane
+Kerala,,flood
+#keralarains,,flood
+fire,,fire
+flood,,flood
+Flood,,flood
+flooding,,flood
+Water,,flood
+earthquake,,earthquake
+hurricane,,hurricane
+Fire,,fire
+Flood,,flood
+Earthquake,,earthquake
+Hurricane,,hurricane
+FIRE,,fire
+FLOOD,,flood
+EARTHQUAKE,,earthquake
+HURRICANE,,hurricane
+cyclone,flood fire earthquake,hurricane
+hurricane,flood fire earthquake,hurricane
+tornado,flood fire earthquake,hurricane
+wildfire,hurricane flood earthquake,fire
+fire,hurricane flood earthquake,fire
+flood rain,fire quake hurricane cyclone tornado,flood
+floods,fire quake hurricane cyclone tornado,flood
+flood,fire quake hurricane cyclone tornado,flood
+richter,fire flood hurricane cyclone tornado,earthquake
+quake,fire flood hurricane cyclone tornado,earthquake
+flooding water,fire earthquake hurricane cyclone tornado,flood
+Earthquake,fire flood hurricane cyclone tornado Fire Flood Hurricane Cyclone Tornado,earthquake
+earthquake,fire flood hurricane cyclone tornado Fire Flood Hurricane Cyclone Tornado,earthquake
+smoke heat,flood hurricane cyclone tornado Flood Hurricane Cyclone Tornado Earthquake,fire
