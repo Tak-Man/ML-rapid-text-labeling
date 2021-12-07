@@ -80,19 +80,20 @@ df_tracker = pd.DataFrame(
 # PARAMETERS
 initial_true_label_pages = 1000
 initial_true_label_labels_per_page = 50
-true_labeling_cutoff = 3000 # 5000
-true_labeling_cutoff_end = 0 # 2000
-
+true_labeling_cutoff = 11000
+true_labeling_cutoff_end = 0
 label_type = "RecommendedTexts"  # list of valid values ["SimilarTexts", "RecommendedTexts"]
-min_recommender_labels = 1000 #1000  # 3000
-final_label_all = 52400
+min_recommender_labels = 1000
+final_label_all = 50500 # overrides batch but not single labels
 display_options_list = [2, 5, 10, 20, 50, 100]
 display_option_lower_limit = 3
 display_option_upper_limit = 6
 txts_per_page = 50  # 50
-pages_per_max_display_option = 5  # 1071 #1071
+pages_per_max_display_option = 5
+use_batch_labeling = False
+final_labeling = False
+difficult_texts_per_page = 0
 
-difficult_texts_per_page = 0  # need to add functionality for this per page on auto-labeling (& manual labeling per page)
 
 label_applied = False
 
@@ -137,6 +138,7 @@ if true_labeling_cutoff > 0:
 
         # go to next page
     driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()
+    df_tracker.to_csv("tracker_output.csv")
 
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime
@@ -148,62 +150,64 @@ print(auto_start_page)
 
 # %%
 # batch labeling starts
-sectionstarttime = datetime.datetime.now()
+if use_batch_labeling:
+    sectionstarttime = datetime.datetime.now()
 
-for op in range(display_option_lower_limit, len(display_options_list)+1):
-    # check how many are unlabelled
-    if get_total_unlabeled(driver) == 0:
-        break
-    if label_type == "SimilarTexts":
-        op_base_xpath = '//*[@id="group1_table_limit"]/option['
-    else:# if label_type == "RecommendedTexts":
-        op_base_xpath = '//*[@id="group2_table_limit"]/option['
-
-    for pg in range(auto_start_page, pages_per_max_display_option + auto_start_page):
-        print("page", pg)
+    for op in range(display_option_lower_limit, len(display_options_list)+1):
         # check how many are unlabelled
-        remaining_unlabeled = get_total_unlabeled(driver)
-        if remaining_unlabeled == 0:
+        if get_total_unlabeled(driver) == 0:
             break
-            # loop through page
-        for rrow in range(1, txts_per_page + difficult_texts_per_page + 1):
+        if label_type == "SimilarTexts":
+            op_base_xpath = '//*[@id="group1_table_limit"]/option['
+        else:# if label_type == "RecommendedTexts":
+            op_base_xpath = '//*[@id="group2_table_limit"]/option['
+
+        for pg in range(auto_start_page, pages_per_max_display_option + auto_start_page):
+            print("page", pg)
             # check how many are unlabelled
             remaining_unlabeled = get_total_unlabeled(driver)
             if remaining_unlabeled == 0:
                 break
-            elif remaining_unlabeled < final_label_all:
-                print("Final Label All")
-                df_tracker = label_all(driver, test_df, starttime, df_tracker, vectorizer_needs_transform)
-                break
-            else:
-                select_tweet_xpath = get_select_tweet_xpath(rrow, txts_per_page)
-                tweet_selected = driver.find_element_by_xpath(select_tweet_xpath)
-                tweet_id = tweet_selected.text
-                tweet_selected.click()
-                try:
-                    true_label_id = get_true_label_id(driver, train_df, tweet_id=tweet_id)
-                    select_label_multi_text(driver, select_tweet_xpath + '/a', op_base_xpath, true_label_id, wait_time=wait_time,
-                                            max_options=op+1,
-                                            label_type=label_type, min_recommender_labels=min_recommender_labels,
-                                            click_needed=False,
-                                            true_labeling_cutoff=true_labeling_cutoff,
-                                            true_labeling_cutoff_end=true_labeling_cutoff_end)
-                    label_applied = True
-                    if label_applied == True:
-                        click_difficult_texts(driver)
-                    tracker_row, vectorizer_needs_transform = get_tracker_row(driver, test_df, starttime, vectorizer_needs_transform)
-                    print(tracker_row)
-                    df_tracker = df_tracker.append(tracker_row, ignore_index=True)
-                except:
-                    print("tweet not found batch")
-                    pass
+                # loop through page
+            for rrow in range(1, txts_per_page + difficult_texts_per_page + 1):
+                # check how many are unlabelled
+                remaining_unlabeled = get_total_unlabeled(driver)
+                if remaining_unlabeled == 0:
+                    break
+                elif remaining_unlabeled < final_label_all:
+                    print("Final Label All")
+                    df_tracker = label_all(driver, test_df, starttime, df_tracker, vectorizer_needs_transform)
+                    break
+                else:
+                    select_tweet_xpath = get_select_tweet_xpath(rrow, txts_per_page)
+                    tweet_selected = driver.find_element_by_xpath(select_tweet_xpath)
+                    tweet_id = tweet_selected.text
+                    tweet_selected.click()
+                    try:
+                        true_label_id = get_true_label_id(driver, train_df, tweet_id=tweet_id)
+                        select_label_multi_text(driver, select_tweet_xpath + '/a', op_base_xpath, true_label_id, wait_time=wait_time,
+                                                max_options=op+1,
+                                                label_type=label_type, min_recommender_labels=min_recommender_labels,
+                                                click_needed=False,
+                                                true_labeling_cutoff=true_labeling_cutoff,
+                                                true_labeling_cutoff_end=true_labeling_cutoff_end)
+                        label_applied = True
+                        if label_applied == True:
+                            click_difficult_texts(driver)
+                        tracker_row, vectorizer_needs_transform = get_tracker_row(driver, test_df, starttime, vectorizer_needs_transform)
+                        print(tracker_row)
+                        df_tracker = df_tracker.append(tracker_row, ignore_index=True)
+                    except:
+                        print("tweet not found batch")
+                        pass
 
-                # go to next page
-        driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()
-        df_tracker.to_csv("tracker_output.csv")
+                    # go to next page
+            driver.find_element_by_xpath('//*[@id="allTextTableNextButtons"]/a[6]').click()
+            df_tracker.to_csv("tracker_output.csv")
 
 # finish by labeling all remaining unlabeled examples
-df_tracker = label_all(driver, test_df, starttime, df_tracker, vectorizer_needs_transform)
+if final_labeling:
+    df_tracker = label_all(driver, test_df, starttime, df_tracker, vectorizer_needs_transform)
 
 sectionendtime = datetime.datetime.now()
 elapsedsectiontime = sectionendtime - sectionstarttime
