@@ -10,6 +10,17 @@ import sys
 
 sys.path.insert(1, '../baseline-classifier/utilities')
 
+def load_navigate(driver):
+    driver.get("http://127.0.0.1:5000/")
+    driver.maximize_window()
+    sleep(2)
+    driver.find_element_by_xpath('//*[@id="bodyLeftTable1"]/tbody/tr[1]/td[1]/a').click()
+    sleep(5)
+    driver.find_element_by_id('config1').click()
+    sleep(5)
+    driver.find_element_by_id('loadDataSetButton').click()
+    sleep(5)
+
 def get_radio_buttons(driver):
     radio_buttons = []
     radio_buttons.append(driver.find_element_by_id('category1'))
@@ -212,12 +223,15 @@ def process_true_labeling(driver, train_df, test_df, true_labels, starttime, df_
 
     return true_labels, df_tracker
 
-def get_select_tweet_xpath(rrow_, txts_per_page_):
-    if rrow_ <= txts_per_page_:
-        select_tweet_xpath = '//*[@id="allTextsTable"]/tbody/tr[' + str(rrow_) + ']/td[1]'
-    else:
+def get_select_tweet_xpath(rrow_, txts_per_page_, override_to_difficult=False):
+    if (rrow_ > txts_per_page_):
         print("Label from Difficult Texts")
         select_tweet_xpath = '//*[@id="difficultTextsTable"]/tbody/tr[' + str(rrow_ - txts_per_page_) + ']/td[1]'
+    elif override_to_difficult==True:
+        print("Label from Difficult Texts - override")
+        select_tweet_xpath = '//*[@id="difficultTextsTable"]/tbody/tr[' + str(rrow_) + ']/td[1]'
+    else:
+        select_tweet_xpath = '//*[@id="allTextsTable"]/tbody/tr[' + str(rrow_) + ']/td[1]'
 
     return select_tweet_xpath
 
@@ -267,13 +281,13 @@ def search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer
 
     return df_tracker
 
-def label_all(driver, test_df, starttime, df, vnt, wait_time=2.5):
-    for mm in range(3):
+def label_all(driver, test_df, starttime, df, vnt, wait_time=100):
+    for mm in range(5):
         driver.find_element_by_id('labelAllButton').click()
         sleep(wait_time)
 
-    tracker_row, vnt = get_tracker_row(driver, test_df, starttime, vnt,
-                                                              fully_human_labeled=False)
+    sleep(60)
+    tracker_row, vnt = get_tracker_row(driver, test_df, starttime, vnt, fully_human_labeled=False)
     df = df.append(tracker_row, ignore_index=True)
 
     return df

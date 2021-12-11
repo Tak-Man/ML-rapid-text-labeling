@@ -18,7 +18,7 @@ import datetime
 import sys
 sys.path.insert(1, '../baseline-classifier/utilities')
 import dt_utilities as utils
-from utilities import select_label_multi_text, click_difficult_texts, get_total_unlabeled
+from utilities import select_label_multi_text, click_difficult_texts, get_total_unlabeled, load_navigate
 from utilities import label_all, get_tracker_row, get_true_label_id, process_true_labeling, get_select_tweet_xpath
 
 # %%
@@ -63,14 +63,7 @@ driver = webdriver.Chrome(mpath, options=chrome_options)
 
 # %%
 # load the webpage
-driver.get("http://127.0.0.1:5000/")
-driver.maximize_window()
-
-# %%
-# navigate landing page
-driver.find_element_by_xpath('//*[@id="bodyLeftTable1"]/tbody/tr[1]/td[1]/a').click()
-driver.find_element_by_id('config1').click()
-driver.find_element_by_id('loadDataSetButton').click()
+load_navigate(driver)
 
 # %%
 # Set up accuracy tracker

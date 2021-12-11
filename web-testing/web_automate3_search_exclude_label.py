@@ -19,9 +19,7 @@ from time import sleep
 import sys
 sys.path.insert(1, '../baseline-classifier/utilities')
 import dt_utilities as utils
-from utilities import search_exclude_labeling
-from utilities import label_all, clear_model_output, clear_output
-
+from utilities import search_exclude_labeling, label_all, clear_model_output, clear_output, load_navigate
 #%%
 #set a timer
 starttime = datetime.datetime.now()
@@ -62,15 +60,8 @@ driver = webdriver.Chrome(mpath, options = chrome_options)
 
 #%%
 # load the webpage
-driver.get("http://127.0.0.1:5000/")
-driver.maximize_window()
-#sleep(2) #for demo
+load_navigate(driver)
 
-#%%
-# navigate landing page
-driver.find_element_by_xpath('//*[@id="bodyLeftTable1"]/tbody/tr[1]/td[1]/a').click()
-driver.find_element_by_id('config1').click()
-driver.find_element_by_id('loadDataSetButton').click()
 
 #%%
 sectionstarttime = datetime.datetime.now()
