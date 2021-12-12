@@ -8,6 +8,8 @@ The code in this repo includes:
 * Analysis of Benchmarks that could be achieved in terms of speed and accuracy outside the app.
 * Comparison of different models in the same circumstances
 
+The analysis shows that the web app performed well in terms of speed and accuracy.
+
 ## Contributors
 * [https://github.com/Tak-Man](https://github.com/Tak-Man)
 * [https://github.com/michp-ai](https://github.com/michp-ai)
