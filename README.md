@@ -9,6 +9,6 @@ The code in this repo includes:
 * Comparison of different models in the same circumstances
 
 ## Contributors
-https://github.com/Tak-Man
-https://github.com/michp-ai
+* [https://github.com/Tak-Man](https://github.com/Tak-Man)
+* [https://github.com/michp-ai](https://github.com/michp-ai)
 
