@@ -8,7 +8,7 @@ The code in this repo includes:
 * Analysis of Benchmarks that could be achieved in terms of speed and accuracy outside the app.
 * Comparison of different models in the same circumstances
 
-The analysis shows that the web app performed well in terms of speed and accuracy.
+The analysis shows that the web app performed well in terms of speed and accuracy. Specifically the experiments conducted showed that the web app resulted in a time-saving of 82% in user labeling. For more details see the [blog](https://michp-ai.github.io/ML-rapid-text-labeling/).
 
 ## Contributors
 * [https://github.com/Tak-Man](https://github.com/Tak-Man)
