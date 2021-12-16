@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 400, "continuousHeight": 300, "strokeOpacity": 0}, "axis": {"grid": false, "labelAngle": 0, "labelFontSize": 11, "titleFontSize": 15}, "title": {"fontSize": 17}}, "data": {"name": "data-b177306d16310d840262721f30406634"}, "mark": {"type": "bar", "width": 60}, "background": "silver", "encoding": {"color": {"condition": {"value": "red", "test": "(datum.Difficult_Texts === '50 Random 0 Difficult')"}, "value": "green"}, "tooltip": [{"type": "nominal", "field": "Difficult_Texts"}, {"type": "quantitative", "field": "Labels Required"}], "x": {"type": "nominal", "field": "Difficult_Texts", "title": "Pattern for Applying Labels"}, "y": {"type": "quantitative", "field": "Labels Required"}}, "height": 200, "title": "Individual Labels Required to Get to 0.925 Accuracy on Test Set", "width": 600, "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-b177306d16310d840262721f30406634": [{"Difficult_Texts": "50 Random 0 Difficult", "Labels Required": 2363}, {"Difficult_Texts": "50 Random 10 Difficult", "Labels Required": 1167}, {"Difficult_Texts": "50 Random 20 Difficult", "Labels Required": 906}, {"Difficult_Texts": "50 Random 50 Difficult", "Labels Required": 548}, {"Difficult_Texts": "50 Random rest Difficult", "Labels Required": 747}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
