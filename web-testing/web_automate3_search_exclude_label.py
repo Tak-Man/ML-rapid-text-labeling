@@ -85,7 +85,7 @@ print(df_tracker.head(20))
 print(df_tracker.tail(20))
 
 #%%
-# driver.close()
+driver.close()
 
 #%%
 endtime = datetime.datetime.now()

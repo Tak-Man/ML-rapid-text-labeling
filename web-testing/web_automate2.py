@@ -82,7 +82,7 @@ display_options_list = [2, 5, 10, 20, 50, 100]
 display_option_lower_limit = 3
 display_option_upper_limit = 6
 txts_per_page = 50  # 50
-pages_per_max_display_option = 10
+pages_per_max_display_option = 7
 use_batch_labeling = True
 final_labeling = True
 difficult_texts_per_page = 5
@@ -212,7 +212,7 @@ print(df_tracker.head(20))
 print(df_tracker.tail(20))
 
 # %%
-#driver.close()
+driver.close()
 
 # %%
 endtime = datetime.datetime.now()

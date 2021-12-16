@@ -245,6 +245,12 @@ def search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer
         row_exclude = df_test_data.loc[df_test_data.index == rrow, "exclude"].values[0]
         # print(row_exclude)
 
+        toggle_value = df_test_data.loc[df_test_data.index == rrow, "toggle"].values[0]
+        if toggle_value == "Yes":
+            driver.find_element_by_id('searchAllTextRadioYes').click()
+        else:
+            driver.find_element_by_id('searchAllTextRadioNo').click()
+
         supplied_label = df_test_data.loc[df_test_data.index == rrow, "label"].values[0]
         radio_button_id = get_label_id(supplied_label)
         # print(supplied_label, radio_button_id)
@@ -281,12 +287,12 @@ def search_exclude_labeling(driver, test_df, starttime, df_test_data, vectorizer
 
     return df_tracker
 
-def label_all(driver, test_df, starttime, df, vnt, wait_time=100):
+def label_all(driver, test_df, starttime, df, vnt, wait_time=10):
     for mm in range(5):
         driver.find_element_by_id('labelAllButton').click()
         sleep(wait_time)
 
-    sleep(60)
+    sleep(10)
     tracker_row, vnt = get_tracker_row(driver, test_df, starttime, vnt, fully_human_labeled=False)
     df = df.append(tracker_row, ignore_index=True)
 
